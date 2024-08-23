@@ -1,5 +1,4 @@
 #include "sort.h"
-#include <stdlib.h>
 #include <stdio.h>
 /**
 * getMax - A utility function to get maximum value in arr[]
