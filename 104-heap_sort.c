@@ -1,87 +1,104 @@
 #include "sort.h"
-#include <stdio.h>
 
 /**
- * swap - utility function to swap to integers
- * @a: integer a
- * @b: integer b
- **/
-void swap(int *a, int *b)
+ * iParent - returns index of parent node for an array arranged as a binary
+ * tree, for index i
+ * @i: starting index to determine parent node index
+ * Return: index of parent node
+ */
+int iParent(int i)
 {
-	int t = *a;
-
-	*a = *b;
-	*b = t;
+	return ((i - 1) / 2);
 }
 
 /**
- * maxHeapify - The main function to heapify a Max Heap. The function
- * assumes that everything under given root (element at index idx)
- * is already heapified
- * @array: array
- * @size: size of the array for print
- * @idx: index
- * @n: size of the array to run
+ * iLeftChild- returns index of left child branch for an array arranged as
+ * a binary tree, for index i
+ * @i: starting index to determine left child branch index
+ * Return: index of left child node
  */
-void maxHeapify(int *array, size_t size, int idx, size_t n)
+int iLeftChild(int i)
 {
-	int largest = idx;		 /* Initialize largest as root*/
-	int left = 2 * idx + 1;	 /* left = (idx << 1) + 1*/
-	int right = 2 * idx + 2; /* right = (idx + 1) << 1*/
+	return ((2 * i) + 1);
+}
 
-	/* See if left child of root exists and is greater than root*/
-	if (left < (int)n && array[left] > array[largest])
-		largest = left;
+/**
+ * ConvertToHeap - arranges array of integers into a heap/binary tree scheme
+ * @array: array of integers
+ * @size: number of elements in array
+ */
+void ConvertToHeap(int *array, size_t size)
+{
+	int start;
 
-	/**
-	 * See if right child of root exists and is greater than
-     *the largest so far
-	 */
-	if (right < (int)n && array[right] > array[largest])
-		largest = right;
+	start = iParent(size - 1);
 
-	/* Change root, if needed*/
-	if (largest != idx)
+	while (start >= 0)
 	{
-		swap(&array[idx], &array[largest]);
-		print_array(array, size);
-		maxHeapify(array, size, largest, n);
+		SiftDown(array, size, start, size - 1);
+		start--;
 	}
 }
 
 /**
- * heap_sort -  The main function to sort an array of given size
- * @array: array to sort
- * @size: size of the array
- **/
+ * SiftDown - shuffles heap/binary tree sorted array into array sorted by
+ * ascending value
+ * @array: array of values to be sorted in place, from heap to ascending
+ * @size: number of elements in array
+ * @start: starting index
+ * @end: ending index
+ */
+void SiftDown(int *array, size_t size, int start, int end)
+{
+	int root, swap, temp, child;
+
+	root = start;
+
+	while (iLeftChild(root) <= end)
+	{
+		child = iLeftChild(root);
+		swap = root;
+
+		if (array[swap] < array[child])
+			swap = child;
+		if (child + 1 <= end && array[swap] < array[child + 1])
+			swap = child + 1;
+		if (swap != root)
+		{
+			temp = array[root];
+			array[root] = array[swap];
+			array[swap] = temp;
+			print_array(array, size);
+			root = swap;
+		}
+		else
+			return;
+	}
+}
+
+/**
+ * heap_sort - sorts array of integers in ascending order using a heap sort
+ * sift-down alogrithm
+ * @array: array of values to be sorted
+ * @size: number of elements in array
+ */
 void heap_sort(int *array, size_t size)
 {
-	int i;
-	/**
-	 * Start from bottommost and rightmost internal mode and heapify all
-     * internal modes in bottom up way
-	 */
-	if (array == '\0' || size < 2)
+	int iEnd, temp;
+
+	if (!array || size < 2)
 		return;
 
-	for (i = (size - 2) / 2; i >= 0; --i)
-		maxHeapify(array, size, i, size);
+	ConvertToHeap(array, size);
 
-	/**
-	* Repeat following steps while heap size is greater than 1.
-    * The last element in max heap will be the minimum element
-	*/
-	for (i = (size - 1); i > 0; --i)
+	iEnd =  (int)size - 1;
+	while (iEnd > 0)
 	{
-		/**
-		* The largest item in Heap is stored at the root. Replace
-		*it with the last item of the heap followed by reducing the
-		*size of heap by 1.
-		*/
-		swap(&array[0], &array[i]);
+		temp = array[iEnd];
+		array[iEnd] = array[0];
+		array[0] = temp;
 		print_array(array, size);
-
-		/* Finally, heapify the root of tree.*/
-		maxHeapify(array, size, 0, i);
+		iEnd--;
+		SiftDown(array, size, 0, iEnd);
 	}
 }
